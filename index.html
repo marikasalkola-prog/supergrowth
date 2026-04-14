@@ -734,28 +734,6 @@
             border-radius: 50%;
         }
 
-        .other-input {
-            display: none;
-            margin-top: 8px;
-            padding: 10px 14px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            width: 100%;
-            outline: none;
-        }
-
-        .other-input:focus {
-            border-color: var(--neon-green);
-        }
-
-        .other-input.show {
-            display: block;
-        }
-
         .vote-btn {
             margin-bottom: 12px;
         }
@@ -766,42 +744,6 @@
             font-style: italic;
         }
 
-        /* Vote results */
-        .vote-results {
-            display: none;
-            margin-top: 24px;
-        }
-
-        .vote-results.show {
-            display: block;
-        }
-
-        .result-bar {
-            margin-bottom: 12px;
-        }
-
-        .result-bar .result-label {
-            font-size: 14px;
-            margin-bottom: 4px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .result-bar .bar-track {
-            height: 10px;
-            background: var(--surface-raised);
-            border-radius: 999px;
-            overflow: hidden;
-        }
-
-        .result-bar .bar-fill {
-            height: 100%;
-            border-radius: 999px;
-            transition: width 1s ease;
-        }
-
-        .bar-green { background: var(--neon-green); }
-        .bar-purple { background: var(--purple); }
 
         /* ---- RESOURCES ---- */
         .resources-grid {
@@ -1214,44 +1156,17 @@
 
             <div class="vote-options" id="voteOptions">
                 <label class="vote-option">
-                    <input type="radio" name="botname" value="kabuto">
-                    <span><img src="https://avatars.slack-edge.com/2026-02-25/10571456755575_5f8383eeb644ddf0deac_72.jpg" alt="Kabuto" style="width: 20px; height: 20px; border-radius: 4px; vertical-align: middle;"> Kabuto — samurai helmet. Cool. Keep it.</span>
+                    <input type="radio" name="botname" value="Kabuto">
+                    <span><img src="https://avatars.slack-edge.com/2026-02-25/10571456755575_5f8383eeb644ddf0deac_72.jpg" alt="Kabuto" style="width: 20px; height: 20px; border-radius: 4px; vertical-align: middle;"> Kabuto</span>
                 </label>
                 <label class="vote-option">
-                    <input type="radio" name="botname" value="sprout">
-                    <span>🌱 Sprout — fits the growth theme</span>
+                    <input type="radio" name="botname" value="SuperGrowth">
+                    <span>🌱 SuperGrowth</span>
                 </label>
-                <label class="vote-option">
-                    <input type="radio" name="botname" value="oracle">
-                    <span>🔮 Oracle — mysterious, wise, asks good questions</span>
-                </label>
-                <label class="vote-option">
-                    <input type="radio" name="botname" value="other">
-                    <span>✏️ Something else</span>
-                </label>
-                <input type="text" class="other-input" id="otherInput" placeholder="What would you call it?">
             </div>
 
             <button class="btn btn-primary vote-btn" id="voteBtn" onclick="submitVote()">Submit Vote</button>
 
-            <div class="vote-results" id="voteResults">
-                <div class="result-bar">
-                    <div class="result-label"><span>🪖 Kabuto</span><span>44%</span></div>
-                    <div class="bar-track"><div class="bar-fill bar-green" style="width: 0%" data-width="44%"></div></div>
-                </div>
-                <div class="result-bar">
-                    <div class="result-label"><span>🌱 Sprout</span><span>28%</span></div>
-                    <div class="bar-track"><div class="bar-fill bar-green" style="width: 0%" data-width="28%"></div></div>
-                </div>
-                <div class="result-bar">
-                    <div class="result-label"><span>🔮 Oracle</span><span>19%</span></div>
-                    <div class="bar-track"><div class="bar-fill bar-purple" style="width: 0%" data-width="19%"></div></div>
-                </div>
-                <div class="result-bar">
-                    <div class="result-label"><span>✏️ Something else</span><span>9%</span></div>
-                    <div class="bar-track"><div class="bar-fill bar-purple" style="width: 0%" data-width="9%"></div></div>
-                </div>
-            </div>
 
             <p class="vote-note">Non-binding. But we'll probably go with whatever wins.</p>
         </div>
@@ -1381,43 +1296,30 @@
         navObserver.observe(heroEl);
 
         // ---- NAME VOTE ----
-        // Show/hide the text input when "Something else" is selected
-        document.querySelectorAll('input[name="botname"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                const otherInput = document.getElementById('otherInput');
-                if (e.target.value === 'other') {
-                    otherInput.classList.add('show');
-                    otherInput.focus();
-                } else {
-                    otherInput.classList.remove('show');
-                }
-            });
-        });
-
         function submitVote() {
             const selected = document.querySelector('input[name="botname"]:checked');
             if (!selected) return;
 
-            // Disable everything
-            document.querySelectorAll('input[name="botname"]').forEach(r => r.disabled = true);
-            document.getElementById('otherInput').disabled = true;
+            // Send vote to Google Form using a hidden iframe (so page doesn't navigate away)
+            const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSdmMFf63YRMVI7SaTDuyZGLXQZggGukrw3PF4UHqQ-hnSnpbQ/formResponse';
+            const data = new URLSearchParams();
+            data.append('entry.291773119', selected.value);
 
-            // Change button text
+            // Submit silently via fetch — the "no-cors" mode means we won't get a response back,
+            // but the vote will be recorded in your Google Sheet
+            fetch(formUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: data.toString()
+            });
+
+            // Disable options and update button
+            document.querySelectorAll('input[name="botname"]').forEach(r => r.disabled = true);
             const btn = document.getElementById('voteBtn');
             btn.textContent = '✓ Voted — thanks!';
             btn.disabled = true;
             btn.style.opacity = '0.7';
-
-            // Show results with animated bars
-            const results = document.getElementById('voteResults');
-            results.classList.add('show');
-
-            // Animate the bars after a tiny delay
-            setTimeout(() => {
-                results.querySelectorAll('.bar-fill').forEach(bar => {
-                    bar.style.width = bar.dataset.width;
-                });
-            }, 100);
         }
     </script>
 
