@@ -80,19 +80,6 @@
             50% { opacity: 0; }
         }
 
-        .loading-banner-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 2px;
-            background: var(--neon-green);
-            animation: loopBar 3s linear infinite;
-        }
-
-        @keyframes loopBar {
-            0% { width: 0%; }
-            100% { width: 100%; }
-        }
 
         /* ---- STICKY NAV ---- */
         .sticky-nav {
@@ -937,7 +924,6 @@
     <!-- Loading banner — permanent terminal-style bar at the top -->
     <div class="loading-banner">
         <span class="loading-banner-text">INITIALISING SUPERGROWTH... <span class="loading-banner-cursor">█</span></span>
-        <div class="loading-banner-bar"></div>
     </div>
 
     <!-- Sticky nav — appears after scrolling past the hero -->
